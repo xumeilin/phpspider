@@ -8,6 +8,10 @@ use phpspider\core\selector;
 /* Do NOT delete this comment */
 /* 不要删除这段注释 */
 
+$html = requests::get("https://www.qiushibaike.com/article/121307882");
+$data = selector::select($html, "//*[@id='single-next-link']//div[contains(@class,'thumb')]/img");
+print_r($data);exit;
+
 
 $html = requests::get('http://lishi.zhuixue.net/xiachao/576024.html');
 //echo $html;

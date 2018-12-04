@@ -2081,6 +2081,7 @@ class phpspider
     public function get_fields($confs, $html, $url, $page) 
     {
         $fields = array();
+
         foreach ($confs as $conf) 
         {
             // 当前field抽取到的内容是否是有多项
@@ -2202,28 +2203,10 @@ class phpspider
                 //$fields[$conf['name']] = $repeated ? $values : $values[0];
             }
         }
-
         if (!empty($fields)) 
         {
             foreach ($fields as $fieldname => $data) 
             {
-                $pattern = "/<img\s+.*?src=[\"']{0,1}(.*)[\"']{0,1}[> \r\n\t]{1,}/isu";
-                /*$pattern = "/<img.*?src=[\'|\"](.*?(?:[\.gif|\.jpg|\.jpeg|\.png]))[\'|\"].*?[\/]?>/i"; */
-                // 在抽取到field内容之后调用, 对其中包含的img标签进行回调处理
-                if ($this->on_handle_img && preg_match($pattern, $data)) 
-                {
-                    $return = call_user_func($this->on_handle_img, $fieldname, $data);
-                    if (!isset($return))
-                    {
-                        log::warn("on_handle_img return value can't be empty\n");
-                    }
-                    else 
-                    {
-                        // 有数据才会执行 on_handle_img 方法, 所以这里不要被替换没了
-                        $data = $return;
-                    }
-                }
-
                 // 当一个field的内容被抽取到后进行的回调, 在此回调中可以对网页中抽取的内容作进一步处理
                 if ($this->on_extract_field) 
                 {
@@ -2238,9 +2221,28 @@ class phpspider
                         $fields[$fieldname] = $return;
                     }
                 }
+
+                $pattern = "/<img\s+.*?src=[\"']{0,1}(.*)[\"']{0,1}[> \r\n\t]{1,}/isu";
+                /*$pattern = "/<img.*?src=[\'|\"](.*?(?:[\.gif|\.jpg|\.jpeg|\.png]))[\'|\"].*?[\/]?>/i"; */
+                // 在抽取到field内容之后调用, 对其中包含的img标签进行回调处理
+                if ($this->on_handle_img && preg_match($pattern, $data)) 
+                {
+                    $return = call_user_func($this->on_handle_img, $fieldname, $data);
+                    if (!isset($return))
+                    {
+                        log::warn("on_handle_img return value can't be empty\n");
+                    }
+                    else 
+                    {
+                        // 有数据才会执行 on_handle_img 方法, 所以这里不要被替换没了
+                        //$data = $return;
+                        //echo $return;
+                        $fields[$fieldname] =  $return;
+                       // print_r($fields);
+                    }
+                }
             }
         }
-
         return $fields;
     }
 
